@@ -126,6 +126,7 @@ function onDragStart(event: any) {
 
         return;
     }
+    
 
     const container = card.parent as Heap;
 
