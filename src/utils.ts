@@ -26,14 +26,14 @@ export function getFace(
     return new PIXI.Texture(baseTexture, rect);
 }
 
-export const getDeck = (baseTexture: PIXI.BaseTexture): Card[] => {
+export function getDeck (baseTexture: PIXI.BaseTexture): Card[] {
     const deck: Card[] = [];
 
-    SUITS.forEach((suit, line) => {
+    SUITS.forEach((suit: Suit, line) => {
         RANKS.forEach((rank, row) => {
             deck.push(
                 new Card({
-                    suit: suit as Suit,
+                    suit: suit,
                     rank: rank as Rank,
                     face: getFace(baseTexture, line, row)
                 })
@@ -42,9 +42,9 @@ export const getDeck = (baseTexture: PIXI.BaseTexture): Card[] => {
     });
 
     return deck;
-};
+}
 
-export function getTestDeck(deck: Card[]) {
+export function getTestDeck(deck: Card[]): Card[] {
     return [
         deck.find(it => it.rank === 'K' && it.suit === 'hearts'),
         deck.find(it => it.rank === 'Q' && it.suit === 'pikes'),
@@ -66,25 +66,11 @@ export function shuffleDecks(cards: Card[]): Card[] {
     const result: Card[] = [];
     const copy: Card[] = [...cards];
 
-    let i;
-
     while (copy.length) {
         result.push(...copy.splice(getRandomInt(0, copy.length - 1), 1));
     }
 
     return result;
-}
-
-export function rectsIntersect(a: PIXI.Sprite, b: PIXI.Sprite) {
-    const aBox = a.getBounds();
-    const bBox = b.getBounds();
-
-    return (
-        aBox.x + aBox.width > bBox.x &&
-        aBox.x < bBox.x + bBox.width &&
-        aBox.y + aBox.height > bBox.y &&
-        aBox.y < bBox.y + bBox.height
-    );
 }
 
 export function cardHeapIntersect(card: Card, heap: Heap): boolean {

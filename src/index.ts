@@ -1,12 +1,9 @@
 import * as PIXI from 'pixi.js';
 import { Card } from './classes/card.class';
 import {
-    getRandomInt,
     getDeck,
-    rectsIntersect,
     cardHeapIntersect,
     shuffleDecks,
-    getTestDeck,
 } from './utils';
 import {
     CARDS_IMG,
@@ -30,7 +27,6 @@ const app = new PIXI.Application({
 
 document.body.appendChild(app.view);
 
-const cardsBaseTexture = PIXI.BaseTexture.from(CARDS_IMG);
 const cardPlaceTexture = PIXI.Texture.from(CARD_PLACE_IMG);
 
 /* Wrapper container for heaps containers
@@ -46,12 +42,12 @@ openDeck.position.set(POS.openDeck.x, POS.openDeck.y);
 tableContainer.addChild(openDeck.container);
 
 /* Setup heaps by suit */
-const heapsBySuit = SUITS.map((suit) => {
+const heapsBySuit = SUITS.map(suit => {
     const heap = new HeapBySuit(cardPlaceTexture);
 
     heap.position.set(
-        POS.heapBySuit.find((it) => it.suit === suit).x,
-        POS.heapBySuit.find((it) => it.suit === suit).y
+        POS.heapBySuit.find(it => it.suit === suit).x,
+        POS.heapBySuit.find(it => it.suit === suit).y
     );
 
     tableContainer.addChild(heap.container);
@@ -60,11 +56,10 @@ const heapsBySuit = SUITS.map((suit) => {
 });
 
 /* Setup heaps */
-const heaps = POS.heaps.map((it) => {
+const heaps = POS.heaps.map(({ x, y }) => {
     const heap = new Heap(cardPlaceTexture);
 
-    heap.position.set(it.x, it.y);
-
+    heap.position.set(x, y);
     tableContainer.addChild(heap.container);
 
     return heap;
@@ -76,8 +71,9 @@ const openCont = new PIXI.Container();
 tableContainer.addChild(openCont);
 
 /* Setup Cards */
-// const cards = shuffleDecks(getDeck(baseTexture));
-const cards = getTestDeck(getDeck(cardsBaseTexture));
+const cardsBaseTexture = PIXI.BaseTexture.from(CARDS_IMG);
+const cards = shuffleDecks(getDeck(cardsBaseTexture));
+// const cards = getTestDeck(getDeck(cardsBaseTexture, tableContainer));
 
 cards.forEach((card: Card, i: number) => {
     card.setTexture();
@@ -92,16 +88,7 @@ tableContainer.addChild(deck);
 
 initGame(cards, heaps);
 
-/* --- */
-
-// function setRandomPosition(card: Card): void {
-//     card.x = getRandomInt(0, 500);
-//     card.y = getRandomInt(0, 360);
-// }
-
 function makeDragable(card: Card) {
-    card.anchor.set(0.5);
-    card.interactive = true;
     card.on('mousedown', onDragStart)
         .on('touchstart', onDragStart)
         .on('mouseup', onDragEnd)
@@ -110,6 +97,26 @@ function makeDragable(card: Card) {
         .on('touchendoutside', onDragEnd)
         .on('mousemove', onDragMove)
         .on('touchmove', onDragMove);
+}
+
+function initGame(cards: Card[], heaps: Heap[]) {
+    heaps.reverse();
+
+    // for debug
+    for (let i = 0; i < heaps.length; i++) {
+        // for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < i + 1; j++) {
+            const card = cards.pop();
+
+            if (i === heaps.length - 1) {
+                card.open();
+            }
+
+            heaps[j].addCard(card);
+        }
+    }
+
+    heaps.reverse();
 }
 
 function onDragStart(event: any) {
@@ -126,7 +133,6 @@ function onDragStart(event: any) {
 
         return;
     }
-    
 
     const container = card.parent as Heap;
 
@@ -158,9 +164,7 @@ function onDragEnd(event: any) {
     if (!event.target || !(event.target as Card).isOpen) {
         card.moveToLastPlace();
     } else {
-        const targetHeap = allHeaps.find((it) =>
-            cardHeapIntersect(event.target as Card, it)
-        );
+        const targetHeap = allHeaps.find(it => cardHeapIntersect(card, it));
 
         if (!targetHeap) {
             card.moveToLastPlace();
@@ -192,26 +196,9 @@ function onDragMove() {
             this.siblings.forEach((it: Card, i: number) => {
                 const newPosition = this.data.getLocalPosition(this.parent);
                 it.x = newPosition.x - this.dragPoint.x;
-                it.y = newPosition.y - this.dragPoint.y + OPEN_PADDNIG * (i + 1);
+                it.y =
+                    newPosition.y - this.dragPoint.y + OPEN_PADDNIG * (i + 1);
             });
-        }
-    }
-}
-
-function initGame(cards: Card[], heaps: Heap[]) {
-    heaps.reverse();
-
-    // for debug
-    // for (let i = 0; i < heaps.length; i++) {
-    for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < i + 1; j++) {
-            const card = cards.pop();
-
-            if (i === heaps.length - 1) {
-                card.open();
-            }
-
-            heaps[j].addCard(card);
         }
     }
 }

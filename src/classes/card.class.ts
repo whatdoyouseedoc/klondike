@@ -1,7 +1,6 @@
 import * as PIXI from 'pixi.js';
-import { CARD_WIDTH, CARD_HEIGHT, COVER_IMG, RANKS } from '../constants';
+import { CARD_WIDTH, CARD_HEIGHT, COVER_IMG } from '../constants';
 import { Suit, Rank, Color } from '../types';
-import { cardHeapIntersect } from '../utils';
 
 interface CardConfig {
     suit: Suit;
@@ -22,7 +21,10 @@ export class Card extends PIXI.Sprite {
 
     siblings: any;
 
-    constructor({ suit, rank, face }: CardConfig, texture?: PIXI.Texture) {
+    constructor(
+        { suit, rank, face }: CardConfig,
+        texture?: PIXI.Texture
+    ) {
         super(texture);
 
         this.suit = suit;
@@ -35,35 +37,37 @@ export class Card extends PIXI.Sprite {
         );
 
         this.close();
+        this.anchor.set(0.5);
+        this.interactive = true;
     }
 
-    open() {
+    open(): void {
         this.isOpen = true;
         this.setTexture();
     }
 
-    close() {
+    close(): void {
         this.isOpen = false;
         this.setTexture();
     }
 
-    saveLastPosition() {
+    saveLastPosition(): void {
         this.lastPosition = {
             x: this.position.x,
             y: this.position.y,
         };
     }
 
-    saveLastContainer() {
+    saveLastContainer(): void {
         this.lastContainer = this.parent;
     }
 
-    saveLastPlace() {
+    saveLastPlace(): void {
         this.saveLastPosition();
         this.saveLastContainer();
     }
 
-    moveToLastPlace() {
+    moveToLastPlace(): void {
         this.position.set(this.lastPosition.x, this.lastPosition.y);
         this.lastContainer.addChild(this);
 
@@ -76,10 +80,6 @@ export class Card extends PIXI.Sprite {
         }
     }
 
-    // get nextRank(): Rank {
-    //     return this.rank === 'K' ? null : RANKS[RANKS.indexOf(this.rank) + 1] as Rank;
-    // }
-
     get isTopCard(): boolean {
         return this.parent && this.parent.children[this.parent.children.length - 1] === this;
     }
@@ -90,7 +90,7 @@ export class Card extends PIXI.Sprite {
             : 'black';
     }
 
-    setTexture() {
+    setTexture(): void {
         this.texture = this.isOpen ? this.face : this.cover;
     }
 }

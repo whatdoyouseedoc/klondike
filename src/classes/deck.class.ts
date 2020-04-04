@@ -2,9 +2,7 @@ import * as PIXI from 'pixi.js';
 import {
     COVER_IMG,
     CARD_WIDTH,
-    CARD_HEIGHT,
-    CARD_PLACE_IMG,
-    POS
+    CARD_HEIGHT
 } from '../constants';
 import { Card } from './card.class';
 import { Heap } from './heap.class';
