@@ -57,7 +57,8 @@ export function getTestDeck(deck: Card[]) {
         deck.find(it => it.rank === '5' && it.suit === 'hearts'),
         deck.find(it => it.rank === '4' && it.suit === 'pikes'),
         deck.find(it => it.rank === '3' && it.suit === 'hearts'),
-        deck.find(it => it.rank === '2' && it.suit === 'pikes')
+        deck.find(it => it.rank === '2' && it.suit === 'pikes'),
+        deck.find(it => it.rank === 'A' && it.suit === 'hearts')
     ];
 }
 

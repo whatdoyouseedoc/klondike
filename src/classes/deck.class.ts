@@ -40,6 +40,11 @@ export class Deck extends PIXI.Sprite {
 
     dropCard() {
         if (!this.cards.length) {
+            if (this.openDeck.container.children.length === 1) {
+                /* The deck is empty */
+                return;
+            }
+
             while (this.openDeck.container.children.length > 1) {
                 const card = this.openDeck.container.children.pop() as Card;
                 card.close();

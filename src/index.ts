@@ -6,24 +6,35 @@ import {
     rectsIntersect,
     cardHeapIntersect,
     shuffleDecks,
-    getTestDeck
+    getTestDeck,
 } from './utils';
-import { CARDS_IMG, POS, CARD_PLACE_IMG, SUITS, OPEN_PADDNIG } from './constants';
+import {
+    CARDS_IMG,
+    POS,
+    CARD_PLACE_IMG,
+    SUITS,
+    OPEN_PADDNIG,
+    CANVAS_WIDTH,
+    CANVAS_HEIGHT,
+} from './constants';
 import { Heap } from './classes/heap.class';
 import { Deck } from './classes/deck.class';
 import { HeapBySuit } from './classes/heap-by-suit.class';
 
+/* Setup canvas */
 const app = new PIXI.Application({
-    width: 2000,
-    height: 1000,
-    backgroundColor: 0x999999
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+    backgroundColor: 0x999999,
 });
 
 document.body.appendChild(app.view);
 
-const baseTexture = PIXI.BaseTexture.from(CARDS_IMG);
+const cardsBaseTexture = PIXI.BaseTexture.from(CARDS_IMG);
 const cardPlaceTexture = PIXI.Texture.from(CARD_PLACE_IMG);
 
+/* Wrapper container for heaps containers
+dragged cards places in this container for proper z-index ordering */
 const tableContainer = new PIXI.Container();
 
 app.stage.addChild(tableContainer);
@@ -35,12 +46,12 @@ openDeck.position.set(POS.openDeck.x, POS.openDeck.y);
 tableContainer.addChild(openDeck.container);
 
 /* Setup heaps by suit */
-const heapsBySuit = SUITS.map(suit => {
+const heapsBySuit = SUITS.map((suit) => {
     const heap = new HeapBySuit(cardPlaceTexture);
 
     heap.position.set(
-        POS.heapBySuit.find(it => it.suit === suit).x,
-        POS.heapBySuit.find(it => it.suit === suit).y
+        POS.heapBySuit.find((it) => it.suit === suit).x,
+        POS.heapBySuit.find((it) => it.suit === suit).y
     );
 
     tableContainer.addChild(heap.container);
@@ -49,7 +60,7 @@ const heapsBySuit = SUITS.map(suit => {
 });
 
 /* Setup heaps */
-const heaps = POS.heaps.map(it => {
+const heaps = POS.heaps.map((it) => {
     const heap = new Heap(cardPlaceTexture);
 
     heap.position.set(it.x, it.y);
@@ -66,7 +77,7 @@ tableContainer.addChild(openCont);
 
 /* Setup Cards */
 // const cards = shuffleDecks(getDeck(baseTexture));
-const cards = getTestDeck(getDeck(baseTexture));
+const cards = getTestDeck(getDeck(cardsBaseTexture));
 
 cards.forEach((card: Card, i: number) => {
     card.setTexture();
@@ -83,10 +94,10 @@ initGame(cards, heaps);
 
 /* --- */
 
-function setRandomPosition(card: Card): void {
-    card.x = getRandomInt(0, 500);
-    card.y = getRandomInt(0, 360);
-}
+// function setRandomPosition(card: Card): void {
+//     card.x = getRandomInt(0, 500);
+//     card.y = getRandomInt(0, 360);
+// }
 
 function makeDragable(card: Card) {
     card.anchor.set(0.5);
@@ -119,10 +130,12 @@ function onDragStart(event: any) {
     const container = card.parent as Heap;
 
     if (container.children[container.children.length - 1] !== card) {
-        this.siblings = container.children.slice(container.children.indexOf(card) + 1);
+        this.siblings = container.children.slice(
+            container.children.indexOf(card) + 1
+        );
     }
 
-    tableContainer.addChild(event.target);    
+    tableContainer.addChild(event.target);
 
     if (this.siblings) {
         this.siblings.forEach((it: Card) => {
@@ -136,18 +149,31 @@ function onDragStart(event: any) {
     this.dragPoint = event.data.getLocalPosition(this.parent);
     this.dragPoint.x -= this.x;
     this.dragPoint.y -= this.y;
-
 }
 
 function onDragEnd(event: any) {
-    if (!event.target || !(event.target as Card).isOpen) return;
+    const card: Card = event.currentTarget as Card;
 
-    const heap = allHeaps.find(it =>
-        cardHeapIntersect(event.target as Card, it)
-    );
+    if (!event.target || !(event.target as Card).isOpen) {
+        card.moveToLastPlace();
+    } else {
+        const targetHeap = allHeaps.find((it) =>
+            cardHeapIntersect(event.target as Card, it)
+        );
 
-    if (heap) {
-        heap.tryDropCard(event.target);
+        if (!targetHeap) {
+            card.moveToLastPlace();
+
+            if (card.siblings) {
+                card.siblings.forEach((it: Card) => {
+                    it.moveToLastPlace();
+                });
+
+                card.siblings = null;
+            }
+        } else {
+            targetHeap.tryDropCard(event.target);
+        }
     }
 
     this.alpha = 1;
@@ -173,7 +199,6 @@ function onDragMove() {
 
 function initGame(cards: Card[], heaps: Heap[]) {
     heaps.reverse();
-    const count = 1;
 
     // for debug
     // for (let i = 0; i < heaps.length; i++) {
@@ -188,6 +213,4 @@ function initGame(cards: Card[], heaps: Heap[]) {
             heaps[j].addCard(card);
         }
     }
-
-    heaps.reverse();
 }

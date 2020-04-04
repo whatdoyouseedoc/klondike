@@ -56,8 +56,6 @@ export class Card extends PIXI.Sprite {
 
     saveLastContainer() {
         this.lastContainer = this.parent;
-        console.log(this.rank);
-        console.log(this.lastContainer.children);
     }
 
     saveLastPlace() {
@@ -68,6 +66,14 @@ export class Card extends PIXI.Sprite {
     moveToLastPlace() {
         this.position.set(this.lastPosition.x, this.lastPosition.y);
         this.lastContainer.addChild(this);
+
+        if (this.siblings) {
+            this.siblings.forEach((it: Card) => {
+                it.moveToLastPlace();
+            });
+
+            this.siblings = null;
+        }
     }
 
     // get nextRank(): Rank {

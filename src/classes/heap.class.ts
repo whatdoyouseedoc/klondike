@@ -3,21 +3,17 @@ import { Card } from './card.class';
 import { OPEN_PADDNIG, CLOSE_PADDNIG, RANKS } from '../constants';
 
 export class Heap extends PIXI.Sprite {
-    container: PIXI.Container;
+    /* padding for card placed on top */
     noPadding: boolean;
+    container: PIXI.Container;
 
     constructor(texture?: PIXI.Texture, noPadding = false) {
         super(texture);
         this.anchor.set(0.5);
 
         this.noPadding = noPadding;
-
         this.container = new PIXI.Container();
         this.container.addChild(this);
-    }
-
-    get cardIndexInHeap(): number {
-        return this.container.children.length - 2;
     }
 
     get topCard(): Card {
@@ -28,7 +24,7 @@ export class Heap extends PIXI.Sprite {
         return this.container.children[this.container.children.length - 2] as Card;
     }
 
-    getY(isOpen: boolean): number {
+    calculatePositionY(isOpen: boolean): number {
         const y = this.secondCard.position.y;
 
         if (this.noPadding) {
@@ -45,16 +41,6 @@ export class Heap extends PIXI.Sprite {
     tryDropCard(card: Card): void {
         if (!this.canDropCard(card)) {
              card.moveToLastPlace();
-
-            if (card.siblings) {
-                debugger;
-                
-                card.siblings.forEach((it: Card) => {
-                    it.moveToLastPlace();
-                });
-    
-                card.siblings = null;
-            }
         } else {
             this.addCard(card);
 
@@ -86,7 +72,7 @@ export class Heap extends PIXI.Sprite {
         if (this.container.children.length <= 2) {
             card.position.set(this.position.x, this.position.y);
         } else {
-            card.position.set(this.position.x, this.getY(card.isOpen));
+            card.position.set(this.position.x, this.calculatePositionY(card.isOpen));
         }
     }
 }

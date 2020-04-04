@@ -18,15 +18,11 @@ export class HeapBySuit extends Heap {
             return card.rank === 'A';
         }
 
-        console.log(RANKS[RANKS.indexOf(card.rank) + 1]);
-
-        return (
-            card.suit === this.suit &&
-            RANKS[RANKS.indexOf(card.rank) - 1] === this.topCard.rank
-        );
+        return card.suit === this.suit
+            && RANKS[RANKS.indexOf(card.rank) - 1] === this.topCard.rank;
     }
 
-    addCard(card: Card) {
+    addCard(card: Card): void {
         super.addCard(card);
 
         if (!this.suit) {
