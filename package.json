@@ -11,7 +11,8 @@
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir dist --extensions \".ts,.tsx\" --source-maps inline",
     "build.all": "npm run build.prod && npm run build.esnext",
-    "test": "karma start karma.config.js"
+    "test": "karma start karma.config.js",
+    "deploy": "gh-pages -d gh-pages"
   },
   "keywords": [
     "webpack",
@@ -21,6 +22,12 @@
   "author": "Juri Strumpflohner",
   "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.4.0",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.0",
+    "@babel/preset-env": "^7.4.1",
+    "@babel/preset-typescript": "^7.3.3",
     "@types/jasmine": "2.8.7",
     "@types/node": "7.0.0",
     "awesome-typescript-loader": "5.2.0",
@@ -35,13 +42,7 @@
     "typescript": "3.5.1",
     "webpack": "4.12.0",
     "webpack-cli": "3.0.8",
-    "webpack-dev-server": "3.1.4",
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.4.0",
-    "@babel/plugin-proposal-class-properties": "^7.4.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.4.0",
-    "@babel/preset-env": "^7.4.1",
-    "@babel/preset-typescript": "^7.3.3"
+    "webpack-dev-server": "3.1.4"
   },
   "dependencies": {
     "@types/pixi.js": "^5.0.0",
