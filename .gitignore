@@ -1,8 +1,0 @@
-.idea
-node_modules
-typings
-dist
-coverage
-ts-out
-npm-debug.log
-debug.log
