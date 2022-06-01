@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { CARD_WIDTH, CARD_HEIGHT, SUITS, RANKS } from './constants';
+import { CARD_WIDTH, CARD_HEIGHT, SUITS, RANKS, CANVAS_PADDING, PADDING, OPEN_PADDNIG } from './constants';
 import { Card } from './classes/card.class';
 import { Suit, Rank } from './types';
 import { Heap } from './classes/heap.class';
@@ -89,4 +89,12 @@ export function cardHeapIntersect(card: Card, heap: Heap): boolean {
         card.y + card.height > heapBox.y &&
         card.y < heapBox.y + heapBox.height
     );
+}
+
+export function calcCanvasWidth() {
+    return CANVAS_PADDING * 2 + CARD_WIDTH * 7 + PADDING * 6;
+}
+
+export function calcCanvasHeight() {
+    return CANVAS_PADDING * 2 + CARD_HEIGHT + PADDING + OPEN_PADDNIG * 13 + CARD_HEIGHT;
 }

@@ -4,6 +4,8 @@ import {
     getDeck,
     cardHeapIntersect,
     shuffleDecks,
+    calcCanvasWidth,
+    calcCanvasHeight
 } from './utils';
 import {
     CARDS_IMG,
@@ -11,8 +13,6 @@ import {
     CARD_PLACE_IMG,
     SUITS,
     OPEN_PADDNIG,
-    CANVAS_WIDTH,
-    CANVAS_HEIGHT,
 } from './constants';
 import { Heap } from './classes/heap.class';
 import { Deck } from './classes/deck.class';
@@ -20,8 +20,8 @@ import { HeapBySuit } from './classes/heap-by-suit.class';
 
 /* Setup canvas */
 const app = new PIXI.Application({
-    width: CANVAS_WIDTH,
-    height: CANVAS_HEIGHT,
+    width: calcCanvasWidth(),
+    height: calcCanvasHeight(),
     backgroundColor: 0x999999,
 });
 

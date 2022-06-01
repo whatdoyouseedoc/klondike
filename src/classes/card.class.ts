@@ -37,7 +37,7 @@ export class Card extends PIXI.Sprite {
         );
 
         this.close();
-        this.anchor.set(0.5);
+        // this.anchor.set(0.5);
         this.interactive = true;
     }
 

@@ -25,7 +25,7 @@ export class Deck extends PIXI.Sprite {
             new PIXI.Rectangle(0, 0, CARD_WIDTH, CARD_HEIGHT)
         );
 
-        this.anchor.set(0.5);
+        // this.anchor.set(0.5);
         this.texture = this.coverTexture;
         this.interactive = true;
 

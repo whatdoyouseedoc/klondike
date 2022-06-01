@@ -9,7 +9,7 @@ export class Heap extends PIXI.Sprite {
 
     constructor(texture?: PIXI.Texture, noPadding = false) {
         super(texture);
-        this.anchor.set(0.5);
+        // this.anchor.set(0.5);
 
         this.noPadding = noPadding;
         this.container = new PIXI.Container();
