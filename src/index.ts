@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import { Card } from './classes/card.class';
 import {
     getDeck,
+    getTestDeck,
     cardHeapIntersect,
     shuffleDecks,
     calcCanvasWidth,
@@ -72,7 +73,8 @@ tableContainer.addChild(openCont);
 
 /* Setup Cards */
 const cardsBaseTexture = PIXI.BaseTexture.from(CARDS_IMG);
-const cards = shuffleDecks(getDeck(cardsBaseTexture));
+// const cards = shuffleDecks(getDeck(cardsBaseTexture));
+const cards = getTestDeck(getDeck(cardsBaseTexture));
 // const cards = getTestDeck(getDeck(cardsBaseTexture, tableContainer));
 
 cards.forEach((card: Card, i: number) => {
@@ -160,6 +162,10 @@ function onDragStart(event: any) {
 
 function onDragEnd(event: any) {
     const card: Card = event.currentTarget as Card;
+
+    if (!card.isOpen) {
+        return;
+    }
 
     if (!event.target || !(event.target as Card).isOpen) {
         card.moveToLastPlace();
