@@ -11,9 +11,12 @@ import {
 import {
     CARDS_IMG,
     POS,
+    RANKS,
     CARD_PLACE_IMG,
     SUITS,
     OPEN_PADDNIG,
+    CARD_WIDTH,
+    CARD_HEIGHT
 } from './constants';
 import { Heap } from './classes/heap.class';
 import { Deck } from './classes/deck.class';
@@ -73,8 +76,8 @@ tableContainer.addChild(openCont);
 
 /* Setup Cards */
 const cardsBaseTexture = PIXI.BaseTexture.from(CARDS_IMG);
-// const cards = shuffleDecks(getDeck(cardsBaseTexture));
-const cards = getTestDeck(getDeck(cardsBaseTexture));
+const cards = shuffleDecks(getDeck(cardsBaseTexture));
+// const cards = getTestDeck(getDeck(cardsBaseTexture));
 // const cards = getTestDeck(getDeck(cardsBaseTexture, tableContainer));
 
 cards.forEach((card: Card, i: number) => {
@@ -106,7 +109,7 @@ function initGame(cards: Card[], heaps: Heap[]) {
 
     // for debug
     for (let i = 0; i < heaps.length; i++) {
-        // for (let i = 0; i < 4; i++) {
+    // for (let i = 0; i < 4; i++) {
         for (let j = 0; j < i + 1; j++) {
             const card = cards.pop();
 
@@ -119,6 +122,85 @@ function initGame(cards: Card[], heaps: Heap[]) {
     }
 
     heaps.reverse();
+
+    const interactionManager = app.renderer.plugins.interaction;
+    app.view.addEventListener('dblclick', (event) => {
+        const global = new PIXI.Point();
+        interactionManager.mapPositionToPoint(global, event.clientX, event.clientY);
+
+        function didClickedOnCard(card: Card, point: PIXI.Point) {
+            const {x, y, width, height} = card.getBounds();
+
+            return point.x >= x
+                && point.x <= x + width
+                && point.y >= y
+                && point.y <= y + height;
+        }
+
+        function getTopCardInHeap(heap: Heap): Card {
+            if (heap.container.children.length <= 1) {
+                return;
+            }
+
+            const topCard = heap.container.children[heap.container.children.length - 1] as Card;
+
+            if (!topCard.isOpen) {
+                return;
+            }
+
+            return topCard;
+        }
+
+        // function getTopCardsInHeaps(heaps: Heap[]): Card[] {
+        //     return heaps.map(getTopCardInHeap).filter(Boolean);
+        // }
+
+        // console.log(getTopCardInHeap(openDeck));
+
+        [...heaps, openDeck].forEach((heap) => {
+            const topCard = getTopCardInHeap(heap);
+
+            if (!topCard) {
+                return;
+            }
+
+            function moveAceToEmptyHeapBySuit(card: Card, heapsBySuit: HeapBySuit[]): void {
+                const emptyHeap = heapsBySuit.find(heap => {
+                    if (heap.container.children.length <= 1) {
+                        return heap;
+                    }
+                });
+
+                emptyHeap.tryDropCard(card);
+            }
+
+            function getApplicableHeap(card: Card, heapsBySuit: HeapBySuit[]): Heap {
+                return heapsBySuit.find(heap => {
+                    if (heap.container.children.length <= 1) {
+                        return;
+                    }
+
+                    const topCard = heap.container.children[heap.container.children.length - 1] as Card;
+
+                    if (topCard.suit === card.suit && RANKS.indexOf(topCard.rank) === RANKS.indexOf(card.rank) - 1) {
+                        return heap;
+                    }
+                });
+            }
+
+            if (didClickedOnCard(topCard, global)) {
+                if (topCard.rank === 'A') {
+                    moveAceToEmptyHeapBySuit(topCard, heapsBySuit);
+                } else {
+                    const applicableHeap = getApplicableHeap(topCard, heapsBySuit);
+
+                    if (applicableHeap) {
+                        applicableHeap.tryDropCard(topCard);
+                    }
+                }
+            }
+        });
+    });
 }
 
 function onDragStart(event: any) {
@@ -162,7 +244,6 @@ function onDragStart(event: any) {
 
 function onDragEnd(event: any) {
     const card: Card = event.currentTarget as Card;
-
     if (!card.isOpen) {
         return;
     }
