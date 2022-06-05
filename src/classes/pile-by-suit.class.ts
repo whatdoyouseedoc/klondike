@@ -1,29 +1,27 @@
 import * as PIXI from 'pixi.js';
-import { Heap } from './heap.class';
+import { Pile } from './pile.class';
 import { Suit } from '../types';
 import { RANKS } from '../constants';
 import { Card } from './card.class';
+import { pileIsEmpty } from '../utils';
 
-export class HeapBySuit extends Heap {
+export class PileBySuit extends Pile {
     suit: Suit;
 
     constructor(texture?: PIXI.Texture) {
         super(texture, true);
-
         this.suit = null;
     }
 
     canDropCard(card: Card): boolean {
-        if (this.container.children.length === 1) {
+        if (pileIsEmpty(this)) {
             return card.rank === 'A';
         }
 
-        console.log('RANKS[RANKS.indexOf(card.rank) - 1]: ', RANKS[RANKS.indexOf(card.rank) - 1]);
-        console.log('card.rank: ', card.rank);
-        console.log('this.topCard.rank: ', this.topCard.rank);
-
-        return card.suit === this.suit
-            && RANKS[RANKS.indexOf(card.rank) - 1] === this.topCard.rank;
+        return (
+            card.suit === this.suit &&
+            RANKS[RANKS.indexOf(card.rank) - 1] === this.topCard.rank
+        );
     }
 
     addCard(card: Card): void {

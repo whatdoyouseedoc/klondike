@@ -53,7 +53,7 @@ export const POS = {
     y: startY,
   },
 
-  heapBySuit: [
+  pileBySuit: [
     {
       suit: 'hearts',
       x: startX + (rowStep + paddingLeft) * 3,
@@ -79,7 +79,7 @@ export const POS = {
     },
   ],
 
-  heaps: [
+  piles: [
     {
       x: startX + (rowStep + paddingLeft) * 0,
       y: startY + lineStep + paddingTop,

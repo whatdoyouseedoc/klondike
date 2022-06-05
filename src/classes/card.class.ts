@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
-import { CARD_WIDTH, CARD_HEIGHT, COVER_IMG } from '../constants';
-import { Suit, Rank, Color } from '../types';
+import { CARD_HEIGHT, CARD_WIDTH, COVER_IMG } from '../constants';
+import { Color, Rank, Suit } from '../types';
 
 interface CardConfig {
     suit: Suit;
@@ -16,15 +16,12 @@ export class Card extends PIXI.Sprite {
     cover: PIXI.Texture;
     sprite: PIXI.Sprite;
 
-    lastPosition: {x: number, y: number};
+    lastPosition: { x: number; y: number };
     lastContainer: PIXI.Container;
 
     siblings: any;
 
-    constructor(
-        { suit, rank, face }: CardConfig,
-        texture?: PIXI.Texture
-    ) {
+    constructor({ suit, rank, face }: CardConfig, texture?: PIXI.Texture) {
         super(texture);
 
         this.suit = suit;
@@ -81,7 +78,10 @@ export class Card extends PIXI.Sprite {
     }
 
     get isTopCard(): boolean {
-        return this.parent && this.parent.children[this.parent.children.length - 1] === this;
+        return (
+            this.parent &&
+            this.parent.children[this.parent.children.length - 1] === this
+        );
     }
 
     get color(): Color {
