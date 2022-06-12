@@ -10,23 +10,23 @@ esbuild
     .build({
         entryPoints: ['./src/index.ts'],
         bundle: true,
-        outfile: 'assets/index.js',
+        outfile: 'public/index.js',
         minify: true,
         sourcemap: true,
         target: ['chrome58', 'firefox57', 'safari11', 'edge18'],
         plugins: [
             // copy({
             //     resolveFrom: 'cwd',
-            //     assets: {
+            //     public: {
             //       from: ['./src/index.html'],
-            //       to: ['./assets/index.html'],
+            //       to: ['./public/index.html'],
             //     },
             // }),
             // copy({
             //     resolveFrom: 'cwd',
-            //     assets: {
+            //     public: {
             //       from: ['./src/images'],
-            //       to: ['./assets/']
+            //       to: ['./public/']
             //     },
             // })
         ]
@@ -36,7 +36,7 @@ esbuild
 if (isDevServer) {
     serve.start({
         port: 3000,
-        root: "./assets",
+        root: "./public",
         live: true,
     });
 }
