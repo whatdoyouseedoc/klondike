@@ -1,8 +1,11 @@
 {
-  "name": "webpack-typescript-starter",
-  "version": "0.0.1",
-  "description": "A simple Webpack 4 starter with TypeScript transpilation",
+  "name": "klondike",
+  "version": "1.0.1",
+  "description": "Klondike card game, implemented using TypeScript and PIXI.js",
   "main": "index.js",
+  "engines": {
+    "node": "12.18.3"
+  },
   "scripts": {
     "start": "webpack-dev-server --port 9000 --inline --progress --profile --colors --watch --content-base src/ --mode development",
     "build": "webpack --config webpack.config.js --mode production",
