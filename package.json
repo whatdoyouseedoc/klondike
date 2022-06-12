@@ -1,6 +1,6 @@
 {
     "name": "klondike",
-    "type": "module",
+    "type": "commonjs",
     "version": "2.0.0",
     "description": "Klondike card game, implemented using TypeScript and PIXI.js",
     "main": "./assets/index.js",
