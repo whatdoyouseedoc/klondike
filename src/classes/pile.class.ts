@@ -1,8 +1,9 @@
 import * as PIXI from 'pixi.js';
+import { CLOSE_PADDNIG, OPEN_PADDNIG, RANKS } from '../constants';
+import { pileIsEmpty } from '../utils';
 import { Card } from './card.class';
-import { OPEN_PADDNIG, CLOSE_PADDNIG, RANKS } from '../constants';
 
-export class Heap extends PIXI.Sprite {
+export class Pile extends PIXI.Sprite {
     /* padding for card placed on top */
     noPadding: boolean;
     container: PIXI.Container;
@@ -17,11 +18,15 @@ export class Heap extends PIXI.Sprite {
     }
 
     get topCard(): Card {
-        return this.container.children[this.container.children.length - 1] as Card;
+        return this.container.children[
+            this.container.children.length - 1
+        ] as Card;
     }
 
     get secondCard(): Card {
-        return this.container.children[this.container.children.length - 2] as Card;
+        return this.container.children[
+            this.container.children.length - 2
+        ] as Card;
     }
 
     calculatePositionY(isOpen: boolean): number {
@@ -40,7 +45,7 @@ export class Heap extends PIXI.Sprite {
 
     tryDropCard(card: Card): void {
         if (!this.canDropCard(card)) {
-             card.moveToLastPlace();
+            card.moveToLastPlace();
         } else {
             this.addCard(card);
 
@@ -48,23 +53,23 @@ export class Heap extends PIXI.Sprite {
                 card.siblings.forEach((it: Card) => {
                     this.addCard(it);
                 });
-    
+
                 card.siblings = null;
             }
         }
     }
 
     canDropCard(card: Card): boolean {
-        if (this.container.children.length === 1) {
+        if (pileIsEmpty(this)) {
             return card.rank === 'K';
         }
-        
-        return this.topCard.isOpen
-            && card.color !== this.topCard.color
-            && RANKS[RANKS.indexOf(card.rank) + 1] === this.topCard.rank;
+
+        return (
+            this.topCard.isOpen &&
+            card.color !== this.topCard.color &&
+            RANKS[RANKS.indexOf(card.rank) + 1] === this.topCard.rank
+        );
     }
-
-
 
     addCard(card: Card) {
         this.container.addChild(card);
@@ -72,7 +77,10 @@ export class Heap extends PIXI.Sprite {
         if (this.container.children.length <= 2) {
             card.position.set(this.position.x, this.position.y);
         } else {
-            card.position.set(this.position.x, this.calculatePositionY(card.isOpen));
+            card.position.set(
+                this.position.x,
+                this.calculatePositionY(card.isOpen)
+            );
         }
     }
 }

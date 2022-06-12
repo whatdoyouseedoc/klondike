@@ -1,19 +1,15 @@
 import * as PIXI from 'pixi.js';
-import {
-    COVER_IMG,
-    CARD_WIDTH,
-    CARD_HEIGHT
-} from '../constants';
+import { CARD_HEIGHT, CARD_WIDTH, COVER_IMG } from '../constants';
 import { Card } from './card.class';
-import { Heap } from './heap.class';
+import { Pile } from './pile.class';
 
 export class Deck extends PIXI.Sprite {
     coverTexture: PIXI.Texture;
     emptyTexture: PIXI.Texture;
     cards: Card[];
-    openDeck: Heap;
+    openDeck: Pile;
 
-    constructor(emptyTexture: PIXI.Texture, cards: Card[], openDeck: Heap) {
+    constructor(emptyTexture: PIXI.Texture, cards: Card[], openDeck: Pile) {
         super(emptyTexture);
 
         this.emptyTexture = emptyTexture;

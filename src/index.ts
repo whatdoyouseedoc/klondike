@@ -1,22 +1,26 @@
 import * as PIXI from 'pixi.js';
 import { Card } from './classes/card.class';
-import {
-    getDeck,
-    cardHeapIntersect,
-    shuffleDecks,
-    calcCanvasWidth,
-    calcCanvasHeight
-} from './utils';
+import { Deck } from './classes/deck.class';
+import { PileBySuit } from './classes/pile-by-suit.class';
+import { Pile } from './classes/pile.class';
 import {
     CARDS_IMG,
-    POS,
     CARD_PLACE_IMG,
-    SUITS,
     OPEN_PADDNIG,
+    POS,
+    RANKS,
+    SUITS
 } from './constants';
-import { Heap } from './classes/heap.class';
-import { Deck } from './classes/deck.class';
-import { HeapBySuit } from './classes/heap-by-suit.class';
+import {
+    calcCanvasHeight,
+    calcCanvasWidth,
+    cardPileIntersect,
+    didClickedOnCard,
+    getDeck,
+    getTopCardInPile,
+    pileIsEmpty,
+    shuffleDecks
+} from './utils';
 
 /* Setup canvas */
 const app = new PIXI.Application({
@@ -25,56 +29,42 @@ const app = new PIXI.Application({
     backgroundColor: 0x999999,
 });
 
+const a = {
+    a: 42,
+};
+
 document.body.appendChild(app.view);
 
 const cardPlaceTexture = PIXI.Texture.from(CARD_PLACE_IMG);
 
-/* Wrapper container for heaps containers
+/* Wrapper container for piles containers
 dragged cards places in this container for proper z-index ordering */
 const tableContainer = new PIXI.Container();
-
 app.stage.addChild(tableContainer);
 
 /* Setup Open Deck */
-const openDeck = new Heap(cardPlaceTexture, true);
+const openDeck = new Pile(cardPlaceTexture, true);
 openDeck.position.set(POS.openDeck.x, POS.openDeck.y);
-
 tableContainer.addChild(openDeck.container);
 
-/* Setup heaps by suit */
-const heapsBySuit = SUITS.map(suit => {
-    const heap = new HeapBySuit(cardPlaceTexture);
+// TODO: useless??
+// const openCont = new PIXI.Container();
+// tableContainer.addChild(openCont);
 
-    heap.position.set(
-        POS.heapBySuit.find(it => it.suit === suit).x,
-        POS.heapBySuit.find(it => it.suit === suit).y
-    );
+/* Setup piles by suit */
+const pilesBySuit = getPilesBySuit();
 
-    tableContainer.addChild(heap.container);
+/* Setup piles */
+const piles = getPiles();
 
-    return heap;
-});
-
-/* Setup heaps */
-const heaps = POS.heaps.map(({ x, y }) => {
-    const heap = new Heap(cardPlaceTexture);
-
-    heap.position.set(x, y);
-    tableContainer.addChild(heap.container);
-
-    return heap;
-});
-
-const allHeaps: Heap[] = [...heapsBySuit, ...heaps];
-
-const openCont = new PIXI.Container();
-tableContainer.addChild(openCont);
+const getAllPiles = () => [...pilesBySuit, ...piles];
 
 /* Setup Cards */
 const cardsBaseTexture = PIXI.BaseTexture.from(CARDS_IMG);
 const cards = shuffleDecks(getDeck(cardsBaseTexture));
-// const cards = getTestDeck(getDeck(cardsBaseTexture, tableContainer));
+// const cards = getTestDeck(getDeck(cardsBaseTexture));
 
+/* Prepare cards */
 cards.forEach((card: Card, i: number) => {
     card.setTexture();
     card.position.set(POS.deck.x, POS.deck.y);
@@ -86,8 +76,9 @@ const deck = new Deck(cardPlaceTexture, cards, openDeck);
 deck.position.set(POS.deck.x, POS.deck.y);
 tableContainer.addChild(deck);
 
-initGame(cards, heaps);
+initGame(cards, piles);
 
+/* Make cards interactive */
 function makeDragable(card: Card) {
     card.on('mousedown', onDragStart)
         .on('touchstart', onDragStart)
@@ -99,24 +90,27 @@ function makeDragable(card: Card) {
         .on('touchmove', onDragMove);
 }
 
-function initGame(cards: Card[], heaps: Heap[]) {
-    heaps.reverse();
+function initGame(cards: Card[], piles: Pile[]) {
+    piles.reverse();
 
     // for debug
-    for (let i = 0; i < heaps.length; i++) {
+    for (let i = 0; i < piles.length; i++) {
+        // for test piles
         // for (let i = 0; i < 4; i++) {
         for (let j = 0; j < i + 1; j++) {
             const card = cards.pop();
 
-            if (i === heaps.length - 1) {
+            if (i === piles.length - 1) {
                 card.open();
             }
 
-            heaps[j].addCard(card);
+            piles[j].addCard(card);
         }
     }
 
-    heaps.reverse();
+    piles.reverse();
+
+    setupDoubleClickHandler();
 }
 
 function onDragStart(event: any) {
@@ -134,7 +128,7 @@ function onDragStart(event: any) {
         return;
     }
 
-    const container = card.parent as Heap;
+    const container = card.parent as Pile;
 
     if (container.children[container.children.length - 1] !== card) {
         this.siblings = container.children.slice(
@@ -161,12 +155,18 @@ function onDragStart(event: any) {
 function onDragEnd(event: any) {
     const card: Card = event.currentTarget as Card;
 
+    if (!card.isOpen) {
+        return;
+    }
+
     if (!event.target || !(event.target as Card).isOpen) {
         card.moveToLastPlace();
     } else {
-        const targetHeap = allHeaps.find(it => cardHeapIntersect(card, it));
+        const targetPile = getAllPiles().find((it) =>
+            cardPileIntersect(card, it)
+        );
 
-        if (!targetHeap) {
+        if (!targetPile) {
             card.moveToLastPlace();
 
             if (card.siblings) {
@@ -177,7 +177,7 @@ function onDragEnd(event: any) {
                 card.siblings = null;
             }
         } else {
-            targetHeap.tryDropCard(event.target);
+            targetPile.tryDropCard(event.target);
         }
     }
 
@@ -201,4 +201,98 @@ function onDragMove() {
             });
         }
     }
+}
+
+/* Setup PilesBySuit */
+function getPilesBySuit() {
+    return SUITS.map((suit) => {
+        const pile = new PileBySuit(cardPlaceTexture);
+
+        pile.position.set(
+            POS.pileBySuit.find((it) => it.suit === suit).x,
+            POS.pileBySuit.find((it) => it.suit === suit).y
+        );
+
+        tableContainer.addChild(pile.container);
+
+        return pile;
+    });
+}
+
+/* Setup Piles */
+function getPiles() {
+    return POS.piles.map(({ x, y }) => {
+        const pile = new Pile(cardPlaceTexture);
+
+        pile.position.set(x, y);
+        tableContainer.addChild(pile.container);
+
+        return pile;
+    });
+}
+
+/* Setup double click feature */
+function setupDoubleClickHandler(): void {
+    const interactionManager = app.renderer.plugins.interaction;
+
+    app.view.addEventListener('dblclick', (event) => {
+        const point = new PIXI.Point();
+        interactionManager.mapPositionToPoint(
+            point,
+            event.clientX,
+            event.clientY
+        );
+
+        [...piles, openDeck].forEach((pile) => {
+            const topCard = getTopCardInPile(pile);
+
+            if (!topCard) {
+                return;
+            }
+
+            if (didClickedOnCard(topCard, point)) {
+                if (topCard.rank === 'A') {
+                    moveAceToEmptyPileBySuit(topCard, pilesBySuit);
+                } else {
+                    const applicablePile = getApplicablePile(
+                        topCard,
+                        pilesBySuit
+                    );
+
+                    if (applicablePile) {
+                        applicablePile.tryDropCard(topCard);
+                    }
+                }
+            }
+        });
+    });
+}
+
+function moveAceToEmptyPileBySuit(card: Card, pilesBySuit: PileBySuit[]): void {
+    const emptyPile = pilesBySuit.find((pile) => {
+        if (pileIsEmpty(pile)) {
+            return pile;
+        }
+    });
+
+    emptyPile.tryDropCard(card);
+}
+
+function getApplicablePile(card: Card, pilesBySuit: PileBySuit[]): Pile {
+    return pilesBySuit.find((pile) => {
+        if (pileIsEmpty(pile)) {
+            return;
+        }
+
+        const topCard = pile.container.children[
+            pile.container.children.length - 1
+        ] as Card;
+
+        if (
+            topCard.suit === card.suit &&
+            RANKS.indexOf(topCard.rank) === RANKS.indexOf(card.rank) - 1
+        ) {
+            return pile;
+        }
+    });
 }
