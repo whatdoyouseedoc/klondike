@@ -1,15 +1,14 @@
 {
     "name": "klondike",
-    "type": "commonjs",
+    "type": "module",
     "version": "2.0.0",
     "description": "Klondike card game, implemented using TypeScript and PIXI.js",
     "main": "./assets/index.js",
     "engines": {
-        "node": "12.18.3"
+        "node": "16.15.1"
     },
     "scripts": {
-        "build": "esbuild ./src/index.html --bundle --outfile=./assets/index.html --loader:.html=file",
-        "bundle": "node esbuild.config.mjs"
+        "build": "node esbuild.config.mjs"
     },
     "devDependencies": {
         "@types/pixi.js": "^5.0.0",

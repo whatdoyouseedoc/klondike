@@ -15,7 +15,7 @@ import {
     calcCanvasHeight,
     calcCanvasWidth,
     cardPileIntersect,
-    didClickedOnCard,
+    didClickOnCard,
     getDeck,
     getTopCardInPile,
     pileIsEmpty,
@@ -250,7 +250,7 @@ function setupDoubleClickHandler(): void {
                 return;
             }
 
-            if (didClickedOnCard(topCard, point)) {
+            if (didClickOnCard(topCard, point)) {
                 if (topCard.rank === 'A') {
                     moveAceToEmptyPileBySuit(topCard, pilesBySuit);
                 } else {
