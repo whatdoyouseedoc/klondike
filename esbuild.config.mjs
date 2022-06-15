@@ -1,9 +1,7 @@
 import esbuild from 'esbuild';
-// import copyPlugin from 'esbuild-plugin-copy';
 import serve from "create-serve";
-import copy from 'esbuild-copy-plugin';
+import copy from 'esbuild-copy-files-plugin';
 
-// const copy = copyPlugin.copy;
 const isDevServer = process.argv.includes('dev');
 
 esbuild
@@ -15,20 +13,11 @@ esbuild
         sourcemap: true,
         target: ['chrome58', 'firefox57', 'safari11', 'edge18'],
         plugins: [
-            // copy({
-            //     resolveFrom: 'cwd',
-            //     public: {
-            //       from: ['./src/index.html'],
-            //       to: ['./public/index.html'],
-            //     },
-            // }),
-            // copy({
-            //     resolveFrom: 'cwd',
-            //     public: {
-            //       from: ['./src/images'],
-            //       to: ['./public/']
-            //     },
-            // })
+            copy({
+                source: ['./src/index.html', './src/images'],
+                target: './public',
+                copyWithFolder: true
+            })
         ]
     })
     .catch(() => process.exit(1));
