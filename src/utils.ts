@@ -115,7 +115,7 @@ export function calcCanvasHeight(): number {
     );
 }
 
-export function didClickedOnCard(card: Card, point: PIXI.Point): boolean {
+export function didClickOnCard(card: Card, point: PIXI.Point): boolean {
     const { x, y, width, height } = card.getBounds();
 
     return (
